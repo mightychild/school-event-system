@@ -25,4 +25,4 @@ export const adminApi = {
     api.get(`/api/reports/attendance?eventId=${eventId}&userId=${userId}`)
 };
 
-export default adminApi
+export default adminApi;
