@@ -17,7 +17,7 @@ const seedAdmin = async () => {
       role: "admin"
     };
 
-    await User.deleteMany({ email: adminUser.email }); 
+    await User.deleteMany({ email: adminUser.email }); // Prevent duplicates
     await User.create(adminUser);
     console.log('Admin user seeded successfully!');
     process.exit(0);
