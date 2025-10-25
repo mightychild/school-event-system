@@ -23,7 +23,7 @@ const seedAdmin = async () => {
     process.exit(0);
   } catch (err) {
     console.error('Seeding failed:', err);
-    process.exit(1);
+    // process.exit(1);
   }
 };
 
