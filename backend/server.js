@@ -14,9 +14,18 @@ app.use(cors());
 app.use(express.json());
 
 // Database connection
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('MongoDB Connected'))
-  .catch(err => console.error('MongoDB Error:', err));
+const connectDB = async () => {  
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 30000, // 30 seconds
+      socketTimeoutMS: 45000,
+    });
+    console.log('MongoDB connected successfully');
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+    process.exit(1);
+  }
+};
 
 // Import models
 const User = require('./models/User');
@@ -180,9 +189,6 @@ app.get('/api/teacher/dashboard', authMiddleware.protect, async (req, res) => {
   }
 });
 
-// Start event status service
-EventStatusService.start();
-
 // Error handler
 const errorHandler = require('./middleware/errorHandler');
 app.use(errorHandler);
@@ -196,9 +202,26 @@ app.use((req, res) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}/api/health`);
-  console.log(`Debug routes: http://localhost:${PORT}/api/debug/routes`);
-});
+// Initialize server
+const startServer = async () => {
+  try {
+    // Connect to database first
+    await connectDB();
+    
+    // Start event status service after DB connection
+    EventStatusService.start();
+    
+    // Start server
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+      console.log(`Health check: http://localhost:${PORT}/api/health`);
+      console.log(`Debug routes: http://localhost:${PORT}/api/debug/routes`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+// Start the application
+startServer();
